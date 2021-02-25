@@ -208,7 +208,24 @@ module.exports = {
         .select('tipo_treino.tipo_treino')   
         .join('atleta_has_treino', 'treino_id', '=', 'treino.id')
         .join('tipo_treino', 'tipo_treino.id', '=', 'treino.tipo_treino_id')
-        .where('atleta_has_treino.atleta_id', atletaId)
+        .where((qb) => {
+            qb.where('atleta_has_treino.atleta_id', atletaId)
+            if(filters.semana != 'null') {
+                qb.andWhere('treino.semana', filters.semana)
+            }
+
+            if(filters.tipo_treino != 'null') {
+                qb.andWhere('treino.tipo_treino_id', filters.tipo_treino)
+            }
+
+            if(filters.fase_periodizacao != 'null') {
+                qb.andWhere('treino.periodizacao_id', filters.fase_periodizacao)
+            }
+
+            if(filters.data != 'null') {
+                qb.andWhere('treino.data', filters.data)
+            }
+        })
         .count('treino.id')
         .groupBy('tipo_treino.tipo_treino')
 
@@ -222,11 +239,31 @@ module.exports = {
         tipo_treino_array.push(["Tipo treino", "Quantidade"])
 
         for(let groupby in tipo_treino_groupby){
-            tipo_treino_array.push([tipo_treino_groupby[groupby].tipo_treino, tipo_treino_groupby[groupby].count])
+            tipo_treino_array.push([tipo_treino_groupby[groupby].tipo_treino, parseInt(tipo_treino_groupby[groupby].count)])
         }
         
+        const media_duracao_semana_arr = []
+        const salto_cmj_arr = []
+        const fase_periodizacao_arr = []
 
-        res.status(200).send([treinos, tipo_treino_array, datas, semanas])
-        
+        treinos.forEach(treino => {
+            media_duracao_semana_arr.push(parseFloat(treino.duracao))
+            salto_cmj_arr.push(parseFloat(treino.cmj))
+            fase_periodizacao_arr.push(parseFloat(treino.training_load))
+        })
+
+        const reducer = (acumulador, currValue) => acumulador + currValue
+        const media_duracao_semana = (media_duracao_semana_arr.reduce(reducer) / media_duracao_semana_arr.length)
+        const salto_cmj = (salto_cmj_arr.reduce(reducer))
+        const fase_periodizacao = (fase_periodizacao_arr.reduce(reducer))
+
+        res.status(200).send({
+            treinos, 
+            tipo_treino_array, 
+            datas, semanas, 
+            media_duracao_semana,
+            salto_cmj,
+            fase_periodizacao
+        })        
     }
 }
