@@ -245,17 +245,23 @@ module.exports = {
         const media_duracao_semana_arr = []
         const salto_cmj_arr = []
         const fase_periodizacao_arr = []
+        const monotonia_arr = []
+        const strain_arr = []
 
         treinos.forEach(treino => {
             media_duracao_semana_arr.push(parseFloat(treino.duracao))
             salto_cmj_arr.push(parseFloat(treino.cmj))
             fase_periodizacao_arr.push(parseFloat(treino.training_load))
+            monotonia_arr.push(parseFloat(treino.monotonia))
+            strain_arr.push(parseFloat(treino.strain_dia))
         })
 
         const reducer = (acumulador, currValue) => acumulador + currValue
         const media_duracao_semana = (media_duracao_semana_arr.reduce(reducer) / media_duracao_semana_arr.length)
         const salto_cmj = (salto_cmj_arr.reduce(reducer))
         const fase_periodizacao = (fase_periodizacao_arr.reduce(reducer))
+        const monotonia_soma = (monotonia_arr.reduce(reducer).toFixed(3))
+        const strain_soma = (strain_arr.reduce(reducer).toFixed(3))
 
         res.status(200).send({
             treinos, 
@@ -263,7 +269,9 @@ module.exports = {
             datas, semanas, 
             media_duracao_semana,
             salto_cmj,
-            fase_periodizacao
+            fase_periodizacao,
+            monotonia_soma,
+            strain_soma
         })        
     }
 }
