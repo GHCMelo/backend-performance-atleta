@@ -9,14 +9,13 @@ module.exports = {
         let semana = WeekNumber.getWeekNumber(data)
         let training_load = duracao * pse
         let strain_dia
-        let pessoa_id = atleta_id
 
         const dados = 
             await connection('treino')
             .select('treino.id', 'treino.data', 'treino.semana', 'treino.tipo_treino_id', 'treino.periodizacao_id', 'treino.psr', 'treino.bem_estar', 'treino.pse', 'treino.duracao', 'treino.training_load', 'treino.monotonia', 'treino.strain_dia', 'treino.cmj', 'treino.sj')
-            .join('pessoa_has_treino', 'treino_id', '=', 'treino.id')
+            .join('atleta_has_treino', 'treino_id', '=', 'treino.id')
             .where('semana', semana)
-            .andWhere('pessoa_id', pessoa_id);
+            .andWhere('atleta_id', atleta_id);
 
         if(dados.length <= 0){
             strain_dia = 0
@@ -41,8 +40,8 @@ module.exports = {
             .returning('id')
             .then(async function(id) {
                 const treino_id = id[0]
-                await connection('pessoa_has_treino').insert({
-                    pessoa_id,
+                await connection('atleta_has_treino').insert({
+                    atleta_id,
                     treino_id
                 });
 
@@ -95,9 +94,9 @@ module.exports = {
 
             const lastInsert = await connection('treino')
                 .select('treino.id', 'treino.monotonia')
-                .join('pessoa_has_treino', 'treino_id', '=', 'treino.id')
+                .join('atleta_has_treino', 'treino_id', '=', 'treino.id')
                 .where('semana', semana)
-                .andWhere('pessoa_id', pessoa_id)
+                .andWhere('atleta_id', atleta_id)
                 .orderBy('id', "desc")
                 .limit(1)
 
@@ -121,8 +120,8 @@ module.exports = {
             .returning('id')
             .then(async function(id) {
                 const treino_id = id[0]
-                await connection('pessoa_has_treino').insert({
-                    pessoa_id,
+                await connection('atleta_has_treino').insert({
+                    atleta_id,
                     treino_id
                 });
 
@@ -135,9 +134,9 @@ module.exports = {
             const GetAllDataForUpdate = 
                 await connection('treino')
                 .select('treino.id', 'treino.data', 'treino.semana', 'treino.tipo_treino_id', 'treino.periodizacao_id', 'treino.psr', 'treino.bem_estar', 'treino.pse', 'treino.duracao', 'treino.training_load', 'treino.monotonia', 'treino.strain_dia', 'treino.cmj', 'treino.sj')
-                .join('pessoa_has_treino', 'treino_id', '=', 'treino.id')
+                .join('atleta_has_treino', 'treino_id', '=', 'treino.id')
                 .where('semana', semana)
-                .andWhere('pessoa_id', pessoa_id);
+                .andWhere('atleta_id', atleta_id);
 
             for(let treino in GetAllDataForUpdate){
                 await connection('treino')
@@ -154,7 +153,7 @@ module.exports = {
         const treinos = await 
         connection('treino')
         .select('*')
-        .join('pessoa_has_treino', 'treino_id', '=', 'treino.id');
+        .join('atleta_has_treino', 'treino_id', '=', 'treino.id');
 
         res.status(200).send(treinos);
     },
@@ -166,7 +165,7 @@ module.exports = {
         const treino = await 
         connection('treino')
         .select('*')
-        .join('pessoa_has_treino', 'treino_id', '=', 'treino.id')
+        .join('atleta_has_treino', 'treino_id', '=', 'treino.id')
         .where('treino.id', id);
 
         res.status(200).send(treino);
@@ -183,10 +182,10 @@ module.exports = {
         }
 
         const treinos = await connection('treino')        
-        .join('pessoa_has_treino', 'treino_id', '=', 'treino.id')
+        .join('atleta_has_treino', 'treino_id', '=', 'treino.id')
         .join('tipo_treino', 'tipo_treino.id', '=', 'treino.tipo_treino_id')
         .where((qb) => {
-            qb.where('pessoa_has_treino.pessoa_id', atletaId)
+            qb.where('atleta_has_treino.atleta_id', atletaId)
 
             if(filters.semana != 'null') {
                 qb.andWhere('treino.semana', filters.semana)
@@ -207,17 +206,17 @@ module.exports = {
 
         const tipo_treino_groupby = await connection('treino')
         .select('tipo_treino.tipo_treino')   
-        .join('pessoa_has_treino', 'treino_id', '=', 'treino.id')
+        .join('atleta_has_treino', 'treino_id', '=', 'treino.id')
         .join('tipo_treino', 'tipo_treino.id', '=', 'treino.tipo_treino_id')
-        .where('pessoa_has_treino.pessoa_id', atletaId)
+        .where('atleta_has_treino.atleta_id', atletaId)
         .count('treino.id')
         .groupBy('tipo_treino.tipo_treino')
 
-        const datas = await connection('treino').select('pessoa_has_treino.treino_id', 'treino.data')
-        .join('pessoa_has_treino', 'treino_id', '=', 'treino.id')
+        const datas = await connection('treino').select('atleta_has_treino.treino_id', 'treino.data')
+        .join('atleta_has_treino', 'treino_id', '=', 'treino.id')
 
-        const semanas = await connection('treino').select('pessoa_has_treino.treino_id', 'treino.semana')
-        .join('pessoa_has_treino', 'treino_id', '=', 'treino.id')
+        const semanas = await connection('treino').select('atleta_has_treino.treino_id', 'treino.semana')
+        .join('atleta_has_treino', 'treino_id', '=', 'treino.id')
 
         const tipo_treino_array = []
         tipo_treino_array.push(["Tipo treino", "Quantidade"])

@@ -3,17 +3,32 @@ const bcrypt = require('bcrypt');
 
 module.exports = {
     async index(req, res){
-        const atletas = await connection('pessoa')
+        const pessoa = await connection('pessoa')
         .select('pessoa.id', 'pessoa.nome_completo', 'pessoa.email', 'tipo_pessoa.tipo_pessoa')
-        .join('tipo_pessoa', 'tipo_pessoa.id', '=', 'pessoa.tipo_pessoa_id')
-        .where('tipo_pessoa.id', 2)
 
-        res.status(200).send(atletas)
+        res.status(200).send(pessoa)
     },
 
     async create(req, res){
-        const { tipo_pessoa_id, nome_completo, email, senha, confirmar_senha } = req.body;
+        const { nome_completo, email, senha, confirmar_senha } = req.body;
 
+
+        function addZeroToNumber(number){
+            if(number < 10){
+                return '0'+number
+            }
+
+            return number
+        }
+
+        const date = new Date();
+        const day = addZeroToNumber(date.getDate());
+        const month = addZeroToNumber(date.getMonth() + 1);
+        const year = date.getFullYear();
+        
+        const criado_em = `${year}-${month}-${day}`
+
+        console.log(criado_em);
 
         const findEmail = await connection('pessoa').count('email').where('email', email);
 
@@ -41,10 +56,10 @@ module.exports = {
         const cryptSenha = await bcrypt.hash(senha, 10);
 
         await connection('pessoa').insert({
-            tipo_pessoa_id,
             nome_completo,
             email,
-            senha: cryptSenha
+            senha: cryptSenha,
+            criado_em: date
         })
 
         return res.json({
@@ -56,11 +71,11 @@ module.exports = {
     async getById(req, res){
         const { id } = req.params;
 
-        const atleta = 
+        const pessoa = 
             await connection('pessoa')
-            .select('id', 'tipo_pessoa_id', 'nome_completo', 'email')
+            .select('id', 'nome_completo', 'email')
             .where('id', id);
 
-        res.status(200).send(atleta)
+        res.status(200).send(pessoa)
     }
 }

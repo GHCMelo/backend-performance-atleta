@@ -6,10 +6,14 @@ const PessoaController = require('./controllers/PessoaController');
 const TipoTreinoController = require("./controllers/TipoTreinoController");
 const TreinoController = require('./controllers/TreinoController');
 const PeriodizacaoController = require("./controllers/PeriodizacaoController");
+const AtletaController = require("./controllers/AtletaController");
 
 router.post('/pessoa', PessoaController.create);
 router.get('/atleta/:id', PessoaController.getById)
-router.get('/atletas', PessoaController.index)
+router.get('/pessoa', PessoaController.index)
+
+router.get('/atletas', AtletaController.index);
+router.post('/atleta', AtletaController.create);
 
 router.post('/treino', TreinoController.create);
 router.get('/treino', TreinoController.index);
