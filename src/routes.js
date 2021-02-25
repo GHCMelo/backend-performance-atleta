@@ -9,6 +9,7 @@ const PeriodizacaoController = require("./controllers/PeriodizacaoController");
 
 router.post('/pessoa', PessoaController.create);
 router.get('/atleta/:id', PessoaController.getById)
+router.get('/atletas', PessoaController.index)
 
 router.post('/treino', TreinoController.create);
 router.get('/treino', TreinoController.index);

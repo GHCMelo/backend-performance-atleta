@@ -3,13 +3,13 @@ const WeekNumber = require('../helpers/GetWeekNumber');
 
 module.exports = {
     async create(req, res){
-        const { data, tipo_treino_id, periodizacao_id, psr, bem_estar, pse_treinador, pse, duracao, cmj, sj } = req.body
+        const { atleta_id, data, tipo_treino_id, periodizacao_id, psr, bem_estar, pse_treinador, pse, duracao, cmj, sj } = req.body
 
         let monotonia
         let semana = WeekNumber.getWeekNumber(data)
         let training_load = duracao * pse
         let strain_dia
-        let pessoa_id = 2
+        let pessoa_id = atleta_id
 
         const dados = 
             await connection('treino')
@@ -218,8 +218,6 @@ module.exports = {
 
         const semanas = await connection('treino').select('pessoa_has_treino.treino_id', 'treino.semana')
         .join('pessoa_has_treino', 'treino_id', '=', 'treino.id')
-
-        console.log(datas)
 
         const tipo_treino_array = []
         tipo_treino_array.push(["Tipo treino", "Quantidade"])

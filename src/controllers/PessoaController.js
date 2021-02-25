@@ -3,7 +3,12 @@ const bcrypt = require('bcrypt');
 
 module.exports = {
     async index(req, res){
+        const atletas = await connection('pessoa')
+        .select('pessoa.id', 'pessoa.nome_completo', 'pessoa.email', 'tipo_pessoa.tipo_pessoa')
+        .join('tipo_pessoa', 'tipo_pessoa.id', '=', 'pessoa.tipo_pessoa_id')
+        .where('tipo_pessoa.id', 2)
 
+        res.status(200).send(atletas)
     },
 
     async create(req, res){
