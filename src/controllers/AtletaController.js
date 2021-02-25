@@ -9,6 +9,18 @@ module.exports = {
         res.status(200).send(atletas)
     },
 
+    async getById(req, res) {
+
+        const { id } = req.params
+
+        const atletas = await connection('atleta')
+        .select('atleta.id', 'atleta.peso', 'atleta.altura', 'atleta.data_nascimento', 'pessoa.nome_completo', 'pessoa.email')
+        .join('pessoa', 'pessoa.id', '=', 'atleta.pessoa_id')
+        .where('atleta.id', id);
+
+        res.status(200).send(atletas)
+    },
+
     async create(req, res) {
         const { pessoa_id, data_nascimento, altura, peso  } = req.body;
 
